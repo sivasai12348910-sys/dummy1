@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dummy IoT Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white p-6">
+
+  <h1 class="text-2xl font-bold mb-6 text-green-400">
+    Dummy ESP32 Sensor Dashboard
+  </h1>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-700 rounded-lg">
+      <thead class="bg-gray-800 text-green-300">
+        <tr>
+          <th class="p-3 border">Time</th>
+          <th class="p-3 border">Temperature (°C)</th>
+          <th class="p-3 border">Humidity (%)</th>
+          <th class="p-3 border">Soil</th>
+          <th class="p-3 border">pH</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in data %}
+        <tr class="hover:bg-gray-800">
+          <td class="p-2 border text-gray-400">
+            {{ row.created_at|date:"H:i:s" }}
+          </td>
+          <td class="p-2 border">{{ row.temperature }}</td>
+          <td class="p-2 border">{{ row.humidity }}</td>
+          <td class="p-2 border">{{ row.soil_moisture }}</td>
+          <td class="p-2 border">{{ row.ph }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="p-4 text-gray-500 text-center">
+            No data yet
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
