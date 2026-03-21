@@ -6,18 +6,26 @@ from .models import SensorData
 
 @csrf_exempt
 def sensor_data_api(request):
+
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
+            temperature = request.POST.get("temperature")
+            humidity = request.POST.get("humidity")
+            soil = request.POST.get("soil_moisture")
+            ph = request.POST.get("ph")
+
+            image = request.FILES.get("image")
 
             SensorData.objects.create(
-                temperature=data.get("temperature"),
-                humidity=data.get("humidity"),
-                soil_moisture=data.get("soil_moisture"),
-                ph=data.get("ph"),
+                temperature=temperature,
+                humidity=humidity,
+                soil_moisture=soil,
+                ph=ph,
+                image=image
             )
 
             return JsonResponse({"status": "stored"})
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 

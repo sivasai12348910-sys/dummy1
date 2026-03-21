@@ -21,28 +21,40 @@
           <th class="p-3 border">Humidity (%)</th>
           <th class="p-3 border">Soil</th>
           <th class="p-3 border">pH</th>
+          <th class="p-3 border">image</th>
         </tr>
       </thead>
 
       <tbody>
-        {% for row in data %}
-        <tr class="hover:bg-gray-800">
-          <td class="p-2 border text-gray-400">
-            {{ row.created_at|date:"H:i:s" }}
-          </td>
-          <td class="p-2 border">{{ row.temperature }}</td>
-          <td class="p-2 border">{{ row.humidity }}</td>
-          <td class="p-2 border">{{ row.soil_moisture }}</td>
-          <td class="p-2 border">{{ row.ph }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5" class="p-4 text-gray-500 text-center">
-            No data yet
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      {% for row in data %}
+      <tr class="hover:bg-gray-800">
+        <td class="p-2 border text-gray-400">
+          {{ row.created_at|date:"H:i:s" }}
+        </td>
+        <td class="p-2 border">{{ row.temperature }}</td>
+        <td class="p-2 border">{{ row.humidity }}</td>
+        <td class="p-2 border">{{ row.soil_moisture }}</td>
+        <td class="p-2 border">{{ row.ph }}</td>
+
+        <!-- ✅ Image column -->
+        <td class="p-2 border">
+          {% if row.image %}
+            <img src="{{ row.image.url }}" 
+                alt="Sensor Image" 
+                class="w-20 h-20 object-cover rounded">
+          {% else %}
+            <span class="text-gray-500">No Image</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="p-4 text-gray-500 text-center">
+          No data yet
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
     </table>
   </div>
 

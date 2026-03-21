@@ -5,6 +5,7 @@ class SensorData(models.Model):
     humidity = models.FloatField()
     soil_moisture = models.IntegerField()
     ph = models.FloatField()
+    image = models.ImageField(upload_to='sensor_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
