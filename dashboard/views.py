@@ -86,3 +86,42 @@ def upload_image(request):
 def dashboard_page(request):
     data = SensorData.objects.order_by("-timestamp")
     return render(request, "dashboard.html", {"data": data})
+
+@csrf_exempt
+def get_unprocessed_data(request):
+    readings = SensorData.objects.filter(
+        processed=False,
+        image__isnull=False,
+        temperature__isnull=False
+    )[:10]
+
+    data = []
+
+    for r in readings:
+        data.append({
+            "reading_id": r.reading_id,
+            "device_id": r.device_id,
+            "temperature": r.temperature,
+            "humidity": r.humidity,
+            "soil_moisture": r.soil_moisture,
+            "ph": r.ph,
+            "timestamp": str(r.timestamp),
+            "image_url": request.build_absolute_uri(r.image.url)
+        })
+
+    return JsonResponse({"data": data})
+
+@csrf_exempt
+def update_result(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+
+        # your logic...
+
+        return JsonResponse({"status": "updated"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
