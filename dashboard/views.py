@@ -1,59 +1,86 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.dateparse import parse_datetime
 from .models import SensorData
 from django.core.files.base import ContentFile
+from django.shortcuts import render
 
 @csrf_exempt
 def sensor_data_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
 
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
 
-            SensorData.objects.create(
-                device_id=data.get("device_id"),
-                temperature=data.get("temperature"),
-                humidity=data.get("humidity"),
-                soil_moisture=data.get("soil_moisture"),
-                ph=data.get("ph"),
-            )
+        device_id = data.get("device_id")
+        reading_id = data.get("reading_id")
 
-            return JsonResponse({"status": "sensor stored"})
+        if not device_id or not reading_id:
+            return JsonResponse({"error": "device_id & reading_id required"}, status=400)
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+        obj, created = SensorData.objects.get_or_create(
+            reading_id=reading_id,
+            defaults={
+                "device_id": device_id
+            }
+        )
 
-    return JsonResponse({"error": "POST only"}, status=405)
+        obj.temperature = data.get("temperature")
+        obj.humidity = data.get("humidity")
+        obj.soil_moisture = data.get("soil_moisture")
+        obj.ph = data.get("ph")
+
+        timestamp = data.get("timestamp")
+        if timestamp:
+            obj.timestamp = parse_datetime(timestamp)
+
+        obj.save()
+
+        return JsonResponse({
+            "status": "sensor data stored",
+            "reading_id": reading_id
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
 def upload_image(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
 
-    if request.method == "POST":
-        try:
-            device_id = request.GET.get("device_id")
+    try:
+        device_id = request.GET.get("device_id")
+        reading_id = request.GET.get("reading_id")
 
-            if not device_id:
-                return JsonResponse({"error": "device_id missing"}, status=400)
+        if not device_id or not reading_id:
+            return JsonResponse({"error": "device_id & reading_id required"}, status=400)
 
-            obj = SensorData.objects.filter(device_id=device_id).last()
+        image_file = request.FILES.get("image")
 
-            if not obj:
-                return JsonResponse({"error": "No matching sensor data"}, status=404)
+        if not image_file:
+            return JsonResponse({"error": "Image required"}, status=400)
 
-            image_file = ContentFile(request.body, name=f"{device_id}.jpg")
+        obj, created = SensorData.objects.get_or_create(
+            reading_id=reading_id,
+            defaults={
+                "device_id": device_id
+            }
+        )
 
-            obj.image.save(f"{device_id}.jpg", image_file)
-            obj.save()
+        obj.image = image_file
+        obj.save()
 
-            return JsonResponse({"status": "image saved"})
+        return JsonResponse({
+            "status": "image stored",
+            "reading_id": reading_id
+        })
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "POST only"}, status=405)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 def dashboard_page(request):
-    data = SensorData.objects.order_by("-created_at")
+    data = SensorData.objects.order_by("-timestamp")
     return render(request, "dashboard.html", {"data": data})
