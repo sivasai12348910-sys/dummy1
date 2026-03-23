@@ -13,7 +13,7 @@
   </h1>
 
   <div class="overflow-x-auto">
-    <table class="min-w-full border border-gray-700 rounded-lg">
+    <table class="min-w-full border border-gray-700 rounded-lg text-center">
       <thead class="bg-gray-800 text-green-300">
         <tr>
           <th class="p-3 border">Time</th>
@@ -21,7 +21,8 @@
           <th class="p-3 border">Humidity (%)</th>
           <th class="p-3 border">Soil</th>
           <th class="p-3 border">pH</th>
-          <th class="p-3 border">image</th>
+          <th class="p-3 border">Image</th>
+          <th class="p-3 border">Status</th>
         </tr>
       </thead>
 
@@ -36,32 +37,38 @@
         <td class="p-2 border">{{ row.soil_moisture }}</td>
         <td class="p-2 border">{{ row.ph }}</td>
 
-        <!-- ✅ Image column -->
+        <!-- Image -->
         <td class="p-2 border">
           {% if row.image %}
             <img src="{{ row.image.url }}" 
-                alt="Sensor Image" 
-                class="w-20 h-20 object-cover rounded">
+                 alt="Sensor Image" 
+                 class="w-20 h-20 object-cover rounded mx-auto">
           {% else %}
             <span class="text-gray-500">No Image</span>
           {% endif %}
         </td>
-        <td class="p-2 border">{{ row.processed }}
-          <span class="px-3 py-1 rounded-full text-xs font-bold ${
-              r.processed ? "bg-red-500/20 text-red-500" : "bg-primary/20 text-primary"
-            }">
-              ${r.processed ? "ALERT" : "NORMAL"}
+
+        <!-- Status -->
+        <td class="p-2 border">
+          {% if row.processed %}
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-500">
+              ALERT
             </span>
+          {% else %}
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400">
+              NORMAL
+            </span>
+          {% endif %}
         </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="6" class="p-4 text-gray-500 text-center">
+        <td colspan="7" class="p-4 text-gray-500 text-center">
           No data yet
         </td>
       </tr>
       {% endfor %}
-    </tbody>
+      </tbody>
     </table>
   </div>
 
