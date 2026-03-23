@@ -58,19 +58,21 @@ def upload_image(request):
         if not device_id or not reading_id:
             return JsonResponse({"error": "device_id & reading_id required"}, status=400)
 
-        image_file = request.FILES.get("image")
+        # 🔥 read raw binary instead of FILES
+        image_data = request.body
 
-        if not image_file:
-            return JsonResponse({"error": "Image required"}, status=400)
+        if not image_data:
+            return JsonResponse({"error": "No image data received"}, status=400)
 
         obj, created = SensorData.objects.get_or_create(
             reading_id=reading_id,
-            defaults={
-                "device_id": device_id
-            }
+            defaults={"device_id": device_id}
         )
 
-        obj.image = image_file
+        # 🔥 Save manually to ImageField
+        from django.core.files.base import ContentFile
+        obj.image.save(f"{reading_id}.jpg", ContentFile(image_data))
+
         obj.save()
 
         return JsonResponse({
