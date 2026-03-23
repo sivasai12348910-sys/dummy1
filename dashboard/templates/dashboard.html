@@ -29,7 +29,7 @@
       {% for row in data %}
       <tr class="hover:bg-gray-800">
         <td class="p-2 border text-gray-400">
-          {{ row.created_at|date:"H:i:s" }}
+          {{ row.timestamp|date:"H:i:s" }}
         </td>
         <td class="p-2 border">{{ row.temperature }}</td>
         <td class="p-2 border">{{ row.humidity }}</td>
