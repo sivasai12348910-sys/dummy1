@@ -46,6 +46,13 @@
             <span class="text-gray-500">No Image</span>
           {% endif %}
         </td>
+        <td class="p-2 border">{{ row.processed }}
+          <span class="px-3 py-1 rounded-full text-xs font-bold ${
+              r.processed ? "bg-red-500/20 text-red-500" : "bg-primary/20 text-primary"
+            }">
+              ${r.processed ? "ALERT" : "NORMAL"}
+            </span>
+        </td>
       </tr>
       {% empty %}
       <tr>
