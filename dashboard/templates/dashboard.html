@@ -22,7 +22,6 @@
           <th class="p-3 border">Soil</th>
           <th class="p-3 border">pH</th>
           <th class="p-3 border">Image</th>
-          <th class="p-3 border">Status</th>
         </tr>
       </thead>
 
@@ -45,19 +44,6 @@
                  class="w-20 h-20 object-cover rounded mx-auto">
           {% else %}
             <span class="text-gray-500">No Image</span>
-          {% endif %}
-        </td>
-
-        <!-- Status -->
-        <td class="p-2 border">
-          {% if row.processed %}
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-500">
-              ALERT
-            </span>
-          {% else %}
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400">
-              NORMAL
-            </span>
           {% endif %}
         </td>
       </tr>
