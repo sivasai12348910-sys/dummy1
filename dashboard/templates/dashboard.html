@@ -2,68 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dummy IoT Dashboard</title>
+  <title>IoT Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Auto Refresh -->
+  <meta http-equiv="refresh" content="5">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a, #020617);
+    }
+  </style>
 </head>
 
-<body class="bg-gray-900 text-white p-6">
+<body class="text-white p-6">
 
-  <h1 class="text-2xl font-bold mb-6 text-green-400">
-    Dummy ESP32 Sensor Dashboard
-  </h1>
+  <!-- Header -->
+  <div class="mb-8 flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-green-400">
+      🌿 ESP32 Smart Farming Dashboard
+    </h1>
+    <span class="text-gray-400 text-sm">
+      Live Monitoring • Auto Refresh
+    </span>
+  </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full border border-gray-700 rounded-lg text-center">
-      <thead class="bg-gray-800 text-green-300">
-        <tr>
-          <th class="p-3 border">Time</th>
-          <th class="p-3 border">Temperature (°C)</th>
-          <th class="p-3 border">Humidity (%)</th>
-          <th class="p-3 border">Soil</th>
-          <th class="p-3 border">pH</th>
-          <th class="p-3 border">Image</th>
-          <th class="p-3 border">Status</th>
+  <!-- Card -->
+  <div class="bg-white/5 backdrop-blur-lg border border-gray-700 rounded-2xl shadow-lg p-4">
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-center text-sm">
+
+        <!-- Header -->
+        <thead class="text-green-300 border-b border-gray-700">
+          <tr>
+            <th class="p-3">Time</th>
+            <th class="p-3">Temp (°C)</th>
+            <th class="p-3">Humidity (%)</th>
+            <th class="p-3">Soil</th>
+            <th class="p-3">pH</th>
+            <th class="p-3">Image</th>
+            <th class="p-3">Status</th>
+          </tr>
+        </thead>
+
+        <!-- Body -->
+        <tbody>
+        {% for row in data %}
+
+        <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition
+          {% if not row.image or not row.temperature or not row.humidity or not row.ph %}
+            bg-red-900/30
+          {% endif %}
+        ">
+
+          <!-- Time -->
+          <td class="p-3 text-gray-400">
+            {{ row.timestamp|default:"--" }}
+          </td>
+
+          <!-- Sensors -->
+          <td class="p-3">{{ row.temperature|default:"--" }}</td>
+          <td class="p-3">{{ row.humidity|default:"--" }}</td>
+          <td class="p-3">{{ row.soil_moisture|default:"--" }}</td>
+          <td class="p-3">{{ row.ph|default:"--" }}</td>
+
+          <!-- Image -->
+          <td class="p-3">
+            {% if row.image %}
+              <img src="{{ row.image.url }}" 
+                   class="w-16 h-16 object-cover rounded-lg border border-gray-600 mx-auto hover:scale-110 transition">
+            {% else %}
+              <span class="text-gray-500">No Image</span>
+            {% endif %}
+          </td>
+
+          <!-- Status -->
+          <td class="p-3">
+            {% if row.processed %}
+              <span class="px-3 py-1 text-xs font-semibold bg-green-500/20 text-green-400 rounded-full">
+                ✓ Processed
+              </span>
+            {% else %}
+              <span class="px-3 py-1 text-xs font-semibold bg-red-500/20 text-red-400 rounded-full">
+                ⏳ Pending
+              </span>
+            {% endif %}
+          </td>
+
         </tr>
-      </thead>
 
-      <tbody>
-      {% for row in data %}
-      <tr class="hover:bg-gray-800">
-        <td class="p-2 border text-gray-400">
-          {{ row.timestamp|date:"H:i:s" }}
-        </td>
-        <td class="p-2 border">{{ row.temperature }}</td>
-        <td class="p-2 border">{{ row.humidity }}</td>
-        <td class="p-2 border">{{ row.soil_moisture }}</td>
-        <td class="p-2 border">{{ row.ph }}</td>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="p-6 text-gray-500">
+            🚫 No data available
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
 
-        <!-- Image -->
-        <td class="p-2 border">
-          {% if row.image %}
-            <img src="{{ row.image.url }}" 
-                 alt="Sensor Image" 
-                 class="w-20 h-20 object-cover rounded mx-auto">
-          {% else %}
-            <span class="text-gray-500">No Image</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if row.processed %}
-            <p style="color: green;">Done</p>
-          {% else %}
-            <p style="color: red;">Not Yet</p>
-          {% endif %}
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="7" class="p-4 text-gray-500 text-center">
-          No data yet
-        </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+      </table>
+    </div>
   </div>
 
 </body>
