@@ -125,10 +125,6 @@ def get_unprocessed_data(request):
                 timestamp__isnull=False
             )[:10]
 
-            for r in readings:
-                r.processed = True
-                r.save()
-
         data = []
         for r in readings:
             data.append({
@@ -170,11 +166,6 @@ def update_result(request):
             obj = SensorData.objects.get(reading_id=reading_id)
         except SensorData.DoesNotExist:
             return JsonResponse({"error": "Invalid reading_id"}, status=404)
-
-        # ✅ update AI results
-        obj.disease = data.get("disease", "Unknown")
-        obj.stress = data.get("stress", "Unknown")
-        obj.decision = data.get("decision", "No decision")
 
         obj.processed = True  # mark completed
 
