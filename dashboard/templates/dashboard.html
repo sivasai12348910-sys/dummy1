@@ -22,6 +22,7 @@
           <th class="p-3 border">Soil</th>
           <th class="p-3 border">pH</th>
           <th class="p-3 border">Image</th>
+          <th class="p-3 border">Status</th>
         </tr>
       </thead>
 
@@ -44,6 +45,13 @@
                  class="w-20 h-20 object-cover rounded mx-auto">
           {% else %}
             <span class="text-gray-500">No Image</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if row.processed %}
+            <p style="color: green;">Done</p>
+          {% else %}
+            <p style="color: red;">Not Yet</p>
           {% endif %}
         </td>
       </tr>
