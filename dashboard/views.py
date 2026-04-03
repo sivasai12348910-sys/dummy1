@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from django.shortcuts import render
 from django.core.files.base import ContentFile
 from .models import SensorData
+from django.db import transaction
 
 
 # =========================
@@ -113,18 +114,22 @@ def dashboard_page(request):
 @csrf_exempt
 def get_unprocessed_data(request):
     try:
-        readings = SensorData.objects.filter(
-            processed=False,
-            image__isnull=False,
-            temperature__isnull=False
-        )[:10]
+        with transaction.atomic():
+            readings = SensorData.objects.select_for_update().filter(
+                processed=False,
+                image__isnull=False,
+                temperature__isnull=False,
+                humidity__isnull=False,
+                soil_moisture__isnull=False,
+                ph__isnull=False,
+                timestamp__isnull=False
+            )[:10]
 
-        # ✅ lock records immediately (prevents duplicates)
-        ids = [r.id for r in readings]
-        SensorData.objects.filter(id__in=ids).update(processed=True)
+            for r in readings:
+                r.processed = True
+                r.save()
 
         data = []
-
         for r in readings:
             data.append({
                 "reading_id": r.reading_id,
@@ -133,15 +138,14 @@ def get_unprocessed_data(request):
                 "humidity": r.humidity,
                 "soil_moisture": r.soil_moisture,
                 "ph": r.ph,
-                "timestamp": str(r.timestamp) if r.timestamp else None,
-                "image_url": request.build_absolute_uri(r.image.url) if r.image else None
+                "timestamp": str(r.timestamp),
+                "image_url": request.build_absolute_uri(r.image.url)
             })
 
         return JsonResponse({"data": data})
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-
 
 # =========================
 # UPDATE RESULT (FROM AI)
